@@ -48,12 +48,43 @@ docs/
   adr/              Architecture Decision Records
   spec/             Requirements and API docs
 .github/workflows/  CI, path-filtered per app
-docker-compose.yml  Local Postgres
 ```
 
 ## Getting started
 
-Setup instructions are added once the apps are scaffolded.
+### Prerequisites
+
+- Node.js 24+ and pnpm 11 (`npm install -g pnpm`)
+- .NET 10 SDK
+- PostgreSQL 18, running locally (no Docker needed; see ADR 0008). If another Postgres already uses port 5432, the installer picks 5433: use whichever port `SHOW port;` reports in your connection string.
+
+### One-time database setup
+
+In pgAdmin (Query Tool on the `postgres` database), run each statement separately:
+
+```sql
+CREATE ROLE bandup WITH LOGIN PASSWORD 'your-dev-password';
+CREATE DATABASE bandup_dev OWNER bandup;
+```
+
+### Web (http://localhost:3000)
+
+```powershell
+pnpm install
+pnpm dev:web
+```
+
+### API (http://localhost:5080/swagger)
+
+```powershell
+cd apps/api
+dotnet tool restore
+dotnet user-secrets set "ConnectionStrings:BandUp" "Host=localhost;Port=5432;Database=bandup_dev;Username=bandup;Password=your-dev-password" --project src/BandUp.Api
+dotnet ef database update --project src/BandUp.Infrastructure --startup-project src/BandUp.Api
+dotnet run --project src/BandUp.Api
+```
+
+More detail: [`apps/web/README.md`](apps/web/README.md) and [`apps/api/README.md`](apps/api/README.md). Design rules: [`docs/design/style-guide.md`](docs/design/style-guide.md).
 
 ## Working agreements
 

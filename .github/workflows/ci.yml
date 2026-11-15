@@ -1,0 +1,124 @@
+name: CI
+
+# One workflow, with jobs filtered by path. The final "CI passed" job always runs,
+# so it can be the single required status check on main even when a PR only
+# touches one app (a skipped job counts as OK; a failed one doesn't).
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      web: ${{ steps.filter.outputs.web }}
+      api: ${{ steps.filter.outputs.api }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            web:
+              - 'apps/web/**'
+              - 'packages/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - '.prettierrc.json'
+              - '.github/workflows/ci.yml'
+            api:
+              - 'apps/api/**'
+              - '.github/workflows/ci.yml'
+
+  web:
+    name: Web (lint, typecheck, test, build)
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4 # version read from package.json "packageManager"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm format:check
+      - run: pnpm --filter web lint
+      - run: pnpm --filter web typecheck
+      - run: pnpm --filter web test
+      - run: pnpm --filter web build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+
+  api:
+    name: API (build, test)
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/api
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: bandup
+          POSTGRES_PASSWORD: bandup_ci
+          POSTGRES_DB: bandup_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U bandup"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+      # CI-only throwaway database credentials; not a secret.
+      ConnectionStrings__BandUp: Host=localhost;Port=5432;Database=bandup_test;Username=bandup;Password=bandup_ci
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: apps/api/global.json
+      - run: dotnet restore
+      - run: dotnet build --configuration Release --no-restore
+      - run: dotnet tool restore
+      - name: Apply migrations
+        run: dotnet ef database update --project src/BandUp.Infrastructure --startup-project src/BandUp.Api --configuration Release --no-build
+      - run: dotnet test --configuration Release --no-build --logger "trx" --results-directory TestResults
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-test-results
+          path: apps/api/TestResults
+
+  ci-passed:
+    name: CI passed
+    if: always()
+    needs: [web, api]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if any job failed or was cancelled
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: exit 1
+      - run: echo "All required checks passed or were skipped."

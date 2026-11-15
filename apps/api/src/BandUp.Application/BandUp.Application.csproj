@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Use cases and ports (interfaces such as IModerationService). Depends only on Domain. -->
+  <ItemGroup>
+    <ProjectReference Include="..\BandUp.Domain\BandUp.Domain.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+</Project>

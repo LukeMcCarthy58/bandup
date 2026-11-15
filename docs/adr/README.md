@@ -10,3 +10,5 @@ Short records of significant decisions: context, decision, consequences. Copy `0
 | 0004 | Terraform for infrastructure as code | Accepted |
 | 0005 | Anthropic API (Claude Haiku) for content moderation | Accepted |
 | 0006 | Monorepo with pnpm workspaces | Accepted |
+| 0007 | Mobile-first design system | Accepted |
+| 0008 | Local dev without Docker; distance search without PostGIS | Accepted |

@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BandUp.Api/BandUp.Api.csproj" />
+    <Project Path="src/BandUp.Application/BandUp.Application.csproj" />
+    <Project Path="src/BandUp.Domain/BandUp.Domain.csproj" />
+    <Project Path="src/BandUp.Infrastructure/BandUp.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/BandUp.IntegrationTests/BandUp.IntegrationTests.csproj" />
+    <Project Path="tests/BandUp.UnitTests/BandUp.UnitTests.csproj" />
+  </Folder>
+</Solution>

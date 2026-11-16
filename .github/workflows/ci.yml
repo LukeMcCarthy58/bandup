@@ -42,6 +42,7 @@ jobs:
               - '.github/workflows/ci.yml'
             api:
               - 'apps/api/**'
+              - 'packages/api-client/openapi.json'
               - '.github/workflows/ci.yml'
 
   web:
@@ -65,6 +66,10 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm format:check
+      - name: API client is up to date with openapi.json
+        run: |
+          pnpm --filter @bandup/api-client generate
+          git diff --exit-code packages/api-client/src/generated || (echo "::error::Run 'pnpm --filter @bandup/api-client generate' and commit the result." && exit 1)
       - run: pnpm --filter web lint
       - run: pnpm --filter web typecheck
       - run: pnpm --filter web test
@@ -120,6 +125,9 @@ jobs:
           global-json-file: apps/api/global.json
       - run: dotnet restore
       - run: dotnet build --configuration Release --no-restore
+      - name: OpenAPI document is up to date
+        working-directory: .
+        run: git diff --exit-code packages/api-client/openapi.json || (echo "::error::Build the API locally and commit packages/api-client/openapi.json." && exit 1)
       - run: dotnet tool restore
       - name: Apply migrations
         run: dotnet ef database update --project src/BandUp.Infrastructure --startup-project src/BandUp.Api --configuration Release --no-build

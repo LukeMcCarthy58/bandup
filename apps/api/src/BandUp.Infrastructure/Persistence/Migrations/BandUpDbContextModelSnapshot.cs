@@ -22,6 +22,39 @@ namespace BandUp.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("BandUp.Domain.Profiles.UserGenre", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("GenreId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("UserId", "GenreId");
+
+                    b.HasIndex("GenreId");
+
+                    b.ToTable("UserGenres", (string)null);
+                });
+
+            modelBuilder.Entity("BandUp.Domain.Profiles.UserInstrument", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("InstrumentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer");
+
+                    b.HasKey("UserId", "InstrumentId");
+
+                    b.HasIndex("InstrumentId");
+
+                    b.ToTable("UserInstruments", (string)null);
+                });
+
             modelBuilder.Entity("BandUp.Domain.Reference.Genre", b =>
                 {
                     b.Property<int>("Id")
@@ -1290,18 +1323,87 @@ namespace BandUp.Infrastructure.Persistence.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
+                    b.Property<string>("Bio")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Commitment")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DisplayName")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
                     b.Property<DateTimeOffset>("LastSeenAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Level")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTimeOffset?>("ProfileUpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("TownId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AuthSubject")
                         .IsUnique();
 
+                    b.HasIndex("TownId");
+
                     b.ToTable("Users", (string)null);
+                });
+
+            modelBuilder.Entity("BandUp.Domain.Profiles.UserGenre", b =>
+                {
+                    b.HasOne("BandUp.Domain.Reference.Genre", null)
+                        .WithMany()
+                        .HasForeignKey("GenreId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BandUp.Domain.Users.User", null)
+                        .WithMany("Genres")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BandUp.Domain.Profiles.UserInstrument", b =>
+                {
+                    b.HasOne("BandUp.Domain.Reference.Instrument", null)
+                        .WithMany()
+                        .HasForeignKey("InstrumentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BandUp.Domain.Users.User", null)
+                        .WithMany("Instruments")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BandUp.Domain.Users.User", b =>
+                {
+                    b.HasOne("BandUp.Domain.Reference.Town", null)
+                        .WithMany()
+                        .HasForeignKey("TownId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("BandUp.Domain.Users.User", b =>
+                {
+                    b.Navigation("Genres");
+
+                    b.Navigation("Instruments");
                 });
 #pragma warning restore 612, 618
         }

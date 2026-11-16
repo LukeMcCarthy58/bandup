@@ -41,7 +41,7 @@ erDiagram
 
 | Entity | Key fields | Notes |
 | --- | --- | --- |
-| **User** | id, clerk_user_id (unique), display_name, bio, town_id, level, commitment, photo_key, is_site_admin | `level`: Beginner/Intermediate/Advanced/Pro. `commitment`: Casual/Regular/Serious |
+| **User** | id, clerk_user_id (unique), display_name, bio, town_id, level, commitment, photo_key, is_site_admin | `level`: Beginner/Intermediate/Advanced/Professional. `commitment`: Casual/Regular/Serious |
 | UserInstrument | user_id, instrument_id, is_primary | Composite primary key |
 | UserGenre | user_id, genre_id | Composite primary key |
 | **Band** | id, name, slug (unique), bio, town_id, photo_key | |

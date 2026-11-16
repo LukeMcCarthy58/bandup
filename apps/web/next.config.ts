@@ -12,6 +12,8 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // The shared API client is TypeScript source in the monorepo (packages/api-client).
+  transpilePackages: ["@bandup/api-client"],
   // Cache Components is off: pages render per request so each gets a CSP nonce,
   // and almost every page is personalised once sign-in exists. See ADR 0009.
   turbopack: {

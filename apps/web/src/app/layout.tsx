@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import "@fontsource-variable/inter";
 import "@fontsource-variable/bricolage-grotesque";
 import "./globals.css";
+
+import { SkipLink } from "@/components/app-shell/skip-link";
 
 export const metadata: Metadata = {
   title: {
@@ -22,10 +25,17 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  // Reading the request renders every page per request, so Next.js can attach
+  // the CSP nonce set in src/proxy.ts to its scripts (ADR 0009).
+  await headers();
+
   return (
     <html lang="en-GB">
-      <body className="flex min-h-dvh flex-col">{children}</body>
+      <body className="flex min-h-dvh flex-col">
+        <SkipLink />
+        {children}
+      </body>
     </html>
   );
 }

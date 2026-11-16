@@ -1,17 +1,19 @@
 import type { NextConfig } from "next";
 
-// Baseline security headers. A full nonce-based CSP lands in BAND-33.
+// Static security headers for every response. The Content-Security-Policy is
+// per-request (it carries a nonce), so it's set in src/proxy.ts instead.
 const securityHeaders = [
+  { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "X-Frame-Options", value: "DENY" },
-  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
 ];
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
-  cacheComponents: true,
-  partialPrefetching: true,
+  // Cache Components is off: pages render per request so each gets a CSP nonce,
+  // and almost every page is personalised once sign-in exists. See ADR 0009.
   turbopack: {
     rules: {
       "*.css": {

@@ -11,7 +11,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-screen-md flex-1 px-4 py-8 sm:py-16">
+      <main id="main" className="mx-auto w-full max-w-screen-md flex-1 px-4 py-8 sm:py-16">
         <section className="rounded-lg border bg-card p-6 sm:p-10">
           <h1 className="text-3xl sm:text-4xl">Find your band</h1>
           <p className="mt-3 max-w-prose text-muted-foreground">

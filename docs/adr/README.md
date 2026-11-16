@@ -14,3 +14,4 @@ Short records of significant decisions: context, decision, consequences. Copy `0
 | 0008 | Local dev without Docker; distance search without PostGIS | Accepted |
 | 0009 | Nonce-based CSP, with per-request rendering | Accepted |
 | 0010 | API security baseline: secure by default | Accepted |
+| 0011 | Reference data and the towns dataset | Accepted |

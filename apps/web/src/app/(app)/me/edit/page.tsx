@@ -5,10 +5,9 @@ import { unstable_rethrow } from "next/navigation";
 import { ProfileForm } from "@/components/profiles/profile-form";
 import { ErrorState } from "@/components/states/error-state";
 import { serverApi } from "@/lib/api";
+import { publicApiUrl } from "@/lib/api-url";
 
 export const metadata: Metadata = { title: "Edit profile" };
-
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5080";
 
 async function load() {
   try {
@@ -51,7 +50,7 @@ export default async function EditProfilePage() {
           : "Changes show on your profile straight away."}
       </p>
       <ProfileForm
-        apiUrl={apiUrl}
+        apiUrl={publicApiUrl()}
         isNew={isNew}
         instruments={instruments}
         genres={genres}

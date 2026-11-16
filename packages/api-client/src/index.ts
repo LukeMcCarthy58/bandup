@@ -3,6 +3,7 @@ import createClient, { type Client, type Middleware } from "openapi-fetch";
 import type { components, paths } from "./generated/schema";
 
 export type { components, paths };
+export type { Middleware } from "openapi-fetch";
 
 /** Every request and response shape in the API, e.g. `Schemas["ProfileView"]`. */
 export type Schemas = components["schemas"];

@@ -1,0 +1,80 @@
+import { expect, test } from "@playwright/test";
+
+/** Collects any console errors, which is how blocked (CSP) resources show up. */
+function trackConsoleErrors(page: import("@playwright/test").Page) {
+  const errors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") errors.push(message.text());
+  });
+  page.on("pageerror", (error) => errors.push(error.message));
+  return errors;
+}
+
+test("landing page loads with the headline", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { level: 1, name: "Find your band" })).toBeVisible();
+});
+
+test("main pages load without errors or CSP violations", async ({ page }) => {
+  const errors = trackConsoleErrors(page);
+
+  for (const path of ["/", "/feed", "/adverts", "/create", "/messages", "/me"]) {
+    await page.goto(path);
+    await expect(page.locator("main#main")).toBeVisible();
+  }
+
+  expect(errors).toEqual([]);
+});
+
+test("every page has a nonce-based Content Security Policy", async ({ page }) => {
+  const response = await page.goto("/feed");
+  const csp = response?.headers()["content-security-policy"] ?? "";
+
+  expect(csp).toMatch(/script-src 'self' 'nonce-[^']+' 'strict-dynamic'/);
+  expect(csp).toContain("frame-ancestors 'none'");
+});
+
+test("mobile: the bottom tab bar navigates and marks the current tab", async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(!isMobile, "Bottom tab bar is mobile-only");
+
+  await page.goto("/feed");
+  const tabs = page.getByRole("navigation", { name: "Main" });
+  await expect(tabs.getByRole("link", { name: "Feed" })).toHaveAttribute("aria-current", "page");
+
+  await tabs.getByRole("link", { name: "Adverts" }).click();
+  await expect(page).toHaveURL(/\/adverts$/);
+  await expect(page.getByRole("heading", { level: 1, name: "Adverts" })).toBeVisible();
+  await expect(tabs.getByRole("link", { name: "Adverts" })).toHaveAttribute("aria-current", "page");
+
+  await tabs.getByRole("link", { name: "Create" }).click();
+  await expect(page).toHaveURL(/\/create$/);
+});
+
+test("desktop: the top navigation replaces the bottom tab bar", async ({ page, isMobile }) => {
+  test.skip(isMobile, "Top navigation is desktop-only");
+
+  await page.goto("/feed");
+  const navs = page.getByRole("navigation", { name: "Main" });
+  // Two "Main" navs exist in the DOM; only the desktop one is visible here.
+  await expect(navs.filter({ visible: true })).toHaveCount(1);
+
+  await page.getByRole("link", { name: "Messages" }).filter({ visible: true }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Messages" })).toBeVisible();
+});
+
+test("keyboard users can skip to the content", async ({ page }) => {
+  await page.goto("/feed");
+  await page.keyboard.press("Tab");
+  const skip = page.getByRole("link", { name: "Skip to content" });
+  await expect(skip).toBeFocused();
+  await expect(skip).toBeVisible();
+});
+
+test("unknown pages show a friendly 404", async ({ page }) => {
+  const response = await page.goto("/this-does-not-exist");
+  expect(response?.status()).toBe(404);
+  await expect(page.getByRole("heading", { name: "That page isn't here" })).toBeVisible();
+});

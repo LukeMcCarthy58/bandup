@@ -5,3 +5,6 @@ coverage
 apps/api
 packages/api-client/src/generated
 *.md
+test-results
+playwright-report
+blob-report

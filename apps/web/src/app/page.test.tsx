@@ -9,8 +9,8 @@ describe("Home page", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Find your band" })).toBeInTheDocument();
   });
 
-  it("links to sign up", () => {
+  it("links into the app", () => {
     render(<Home />);
-    expect(screen.getByRole("link", { name: "Join BandUp" })).toHaveAttribute("href", "/sign-up");
+    expect(screen.getByRole("link", { name: "Get started" })).toHaveAttribute("href", "/feed");
   });
 });

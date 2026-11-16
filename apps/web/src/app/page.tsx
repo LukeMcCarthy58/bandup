@@ -19,8 +19,9 @@ export default function Home() {
             nearby.
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            {/* Becomes "Join BandUp" → /sign-up when sign-in arrives (M2). */}
             <Button asChild>
-              <Link href="/sign-up">Join BandUp</Link>
+              <Link href="/feed">Get started</Link>
             </Button>
             <Button asChild variant="outline">
               <Link href="/adverts">Browse adverts</Link>

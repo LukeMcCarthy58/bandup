@@ -28,6 +28,7 @@ public sealed class BandUpApiFactory : WebApplicationFactory<Program>
     {
         builder.UseEnvironment("Development");
         builder.UseSetting("ConnectionStrings:BandUp", TestConnectionString());
+        builder.ConfigureServices(services => services.TrustTestTokens());
     }
 
     protected override IHost CreateHost(IHostBuilder builder)

@@ -1,3 +1,4 @@
+import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import "@fontsource-variable/inter";
@@ -5,6 +6,7 @@ import "@fontsource-variable/bricolage-grotesque";
 import "./globals.css";
 
 import { SkipLink } from "@/components/app-shell/skip-link";
+import { clerkAppearance } from "@/components/auth/clerk-appearance";
 
 export const metadata: Metadata = {
   title: {
@@ -26,15 +28,25 @@ export const viewport: Viewport = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  // Reading the request renders every page per request, so Next.js can attach
-  // the CSP nonce set in src/proxy.ts to its scripts (ADR 0009).
+  // Reading the request renders every page per request, so Next.js and Clerk can
+  // attach the CSP nonce set in src/proxy.ts to their scripts (ADR 0009).
   await headers();
 
   return (
     <html lang="en-GB">
       <body className="flex min-h-dvh flex-col">
-        <SkipLink />
-        {children}
+        <ClerkProvider
+          dynamic
+          appearance={clerkAppearance}
+          signInUrl="/sign-in"
+          signUpUrl="/sign-up"
+          signInFallbackRedirectUrl="/feed"
+          signUpFallbackRedirectUrl="/me"
+          afterSignOutUrl="/"
+        >
+          <SkipLink />
+          {children}
+        </ClerkProvider>
       </body>
     </html>
   );

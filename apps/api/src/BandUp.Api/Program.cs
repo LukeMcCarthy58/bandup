@@ -41,6 +41,7 @@ app.MapHealthEndpoints();
 
 var api = app.MapGroup("/api/v1");
 api.MapReferenceDataEndpoints();
+api.MapMeEndpoints();
 
 app.Run();
 

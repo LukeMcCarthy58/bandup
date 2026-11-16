@@ -45,8 +45,10 @@ test("keyboard users can skip to the content", async ({ page }) => {
   await expect(skip).toBeVisible();
 });
 
-test("unknown pages show a friendly 404", async ({ page }) => {
-  const response = await page.goto("/styleguide/does-not-exist");
-  expect(response?.status()).toBe(404);
-  await expect(page.getByRole("heading", { name: "That page isn't here" })).toBeVisible();
+test("unknown pages ask signed-out visitors to sign in, without revealing what exists", async ({
+  page,
+}) => {
+  await page.goto("/does-not-exist");
+
+  await expect(page).toHaveURL(/\/sign-in\?redirect_url=/);
 });

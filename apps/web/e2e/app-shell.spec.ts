@@ -59,3 +59,10 @@ test("the profile page shows who is signed in, with a sign-out button", async ({
   await expect(page.getByText(process.env.E2E_CLERK_USER_EMAIL!)).toBeVisible();
   await expect(page.getByRole("button", { name: "Sign out" })).toBeVisible();
 });
+
+test("unknown pages show a friendly 404", async ({ page }) => {
+  const response = await page.goto("/does-not-exist");
+
+  expect(response?.status()).toBe(404);
+  await expect(page.getByRole("heading", { name: "That page isn't here" })).toBeVisible();
+});

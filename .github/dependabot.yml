@@ -1,0 +1,55 @@
+# Dependabot: weekly grouped update PRs, so dependencies stay patched without PR spam.
+# Security updates (for known vulnerabilities) are raised immediately, outside this schedule.
+version: 2
+
+updates:
+  - package-ecosystem: npm # works with pnpm-lock.yaml
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:00"
+      timezone: Europe/London
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "deps(web)"
+    groups:
+      web-minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: nuget
+    directory: /apps/api # Directory.Packages.props + .config/dotnet-tools.json
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:00"
+      timezone: Europe/London
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "deps(api)"
+    groups:
+      api-minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: dotnet-sdk
+    directory: /apps/api # global.json
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:00"
+      timezone: Europe/London
+    commit-message:
+      prefix: "deps(sdk)"
+
+  - package-ecosystem: github-actions
+    directory: / # keeps the SHA pins in .github/workflows up to date
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:00"
+      timezone: Europe/London
+    commit-message:
+      prefix: "deps(actions)"
+    groups:
+      github-actions:
+        patterns: ["*"]

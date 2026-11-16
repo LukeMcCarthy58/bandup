@@ -62,6 +62,16 @@ One-time setup, in pgAdmin's Query Tool (on its own):
 CREATE DATABASE bandup_test OWNER bandup;
 ```
 
+## Auth
+
+The API accepts Clerk session tokens (`Authorization: Bearer …`). Set the issuer once:
+
+```powershell
+dotnet user-secrets set "Auth:Authority" "https://<your-frontend-api>.clerk.accounts.dev" --project src/BandUp.Api
+```
+
+`GET /api/v1/me` returns the signed-in user's BandUp account, creating it on the first call (ADR 0012). Integration tests sign their own tokens (`TestTokens`), so they never call Clerk.
+
 ## Reference data endpoints (public)
 
 | Endpoint | Returns |

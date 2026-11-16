@@ -15,3 +15,4 @@ Short records of significant decisions: context, decision, consequences. Copy `0
 | 0009 | Nonce-based CSP, with per-request rendering | Accepted |
 | 0010 | API security baseline: secure by default | Accepted |
 | 0011 | Reference data and the towns dataset | Accepted |
+| 0012 | User accounts created on first request; tokens checked for their origin | Accepted |

@@ -50,6 +50,28 @@ describe("buildCsp", () => {
   });
 });
 
+describe("buildCsp with Clerk", () => {
+  const csp = buildCsp({ nonce: "n", isDev: false, clerkHost: "happy-owl-12.clerk.accounts.dev" });
+
+  it("allows Clerk's API, images, workers and bot protection", () => {
+    expect(directive(csp, "connect-src")).toBe(
+      "'self' https://happy-owl-12.clerk.accounts.dev https://*.protect.clerk.com:*",
+    );
+    expect(directive(csp, "img-src")).toContain("https://img.clerk.com");
+    expect(directive(csp, "worker-src")).toBe("'self' blob:");
+    expect(directive(csp, "frame-src")).toContain("https://challenges.cloudflare.com");
+  });
+
+  it("still requires the nonce for scripts", () => {
+    expect(directive(csp, "script-src")).toMatch(/^'self' 'nonce-n' 'strict-dynamic'/);
+    expect(directive(csp, "script-src")).not.toContain("unsafe-inline");
+  });
+
+  it("adds nothing for Clerk when no host is known", () => {
+    expect(buildCsp({ nonce: "n", isDev: false })).not.toContain("clerk");
+  });
+});
+
 describe("originsFromEnv", () => {
   it("splits and trims a comma-separated list", () => {
     expect(originsFromEnv(" https://a.test, ,https://b.test ")).toEqual([

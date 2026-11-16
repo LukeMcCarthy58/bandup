@@ -1,17 +1,14 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Security.Claims;
 using System.Security.Cryptography;
 using BandUp.Api.Security;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
 namespace BandUp.IntegrationTests.Security;
@@ -22,9 +19,6 @@ namespace BandUp.IntegrationTests.Security;
 /// </summary>
 public sealed class ApiSecurityTests : IAsyncLifetime
 {
-    private const string Issuer = "https://issuer.test";
-    private static readonly SymmetricSecurityKey SigningKey = new(RandomNumberGenerator.GetBytes(32));
-
     private WebApplication _app = null!;
     private HttpClient _client = null!;
 
@@ -40,12 +34,7 @@ public sealed class ApiSecurityTests : IAsyncLifetime
         builder.Services.AddApiSecurity(builder.Configuration);
 
         // Swap the real issuer (Clerk, via JWKS) for a local test key.
-        builder.Services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
-        {
-            options.Authority = null;
-            options.TokenValidationParameters.ValidIssuer = Issuer;
-            options.TokenValidationParameters.IssuerSigningKey = SigningKey;
-        });
+        builder.Services.TrustTestTokens();
 
         _app = builder.Build();
         _app.UseApiErrorHandling();
@@ -164,13 +153,5 @@ public sealed class ApiSecurityTests : IAsyncLifetime
     }
 
     private static string Token(DateTime expires, SecurityKey? key = null, string subject = "user_123") =>
-        new JsonWebTokenHandler().CreateToken(new SecurityTokenDescriptor
-        {
-            Issuer = Issuer,
-            Subject = new ClaimsIdentity([new Claim("sub", subject)]),
-            IssuedAt = expires.AddHours(-1),
-            NotBefore = expires.AddHours(-1),
-            Expires = expires,
-            SigningCredentials = new SigningCredentials(key ?? SigningKey, SecurityAlgorithms.HmacSha256),
-        });
+        TestTokens.Create(subject, expires, key, authorizedParty: null);
 }

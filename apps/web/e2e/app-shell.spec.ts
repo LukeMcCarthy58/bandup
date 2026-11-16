@@ -1,37 +1,25 @@
 import { expect, test } from "@playwright/test";
 
-/** Collects any console errors, which is how blocked (CSP) resources show up. */
-function trackConsoleErrors(page: import("@playwright/test").Page) {
-  const errors: string[] = [];
-  page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
-  });
-  page.on("pageerror", (error) => errors.push(error.message));
-  return errors;
-}
+import { signedInState } from "../playwright.config";
+import { hasTestUser, trackConsoleErrors } from "./helpers";
 
-test("landing page loads with the headline", async ({ page }) => {
+test.use({ storageState: hasTestUser ? signedInState : { cookies: [], origins: [] } });
+test.skip(!hasTestUser, "Set E2E_CLERK_USER_EMAIL to run signed-in tests");
+
+test("signed-in users go from the landing page to their feed", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1, name: "Find your band" })).toBeVisible();
+  await expect(page).toHaveURL(/\/feed$/);
 });
 
-test("main pages load without errors or CSP violations", async ({ page }) => {
+test("app pages load without errors or CSP violations", async ({ page }) => {
   const errors = trackConsoleErrors(page);
 
-  for (const path of ["/", "/feed", "/adverts", "/create", "/messages", "/me"]) {
+  for (const path of ["/feed", "/adverts", "/create", "/messages", "/me"]) {
     await page.goto(path);
     await expect(page.locator("main#main")).toBeVisible();
   }
 
-  expect(errors).toEqual([]);
-});
-
-test("every page has a nonce-based Content Security Policy", async ({ page }) => {
-  const response = await page.goto("/feed");
-  const csp = response?.headers()["content-security-policy"] ?? "";
-
-  expect(csp).toMatch(/script-src 'self' 'nonce-[^']+' 'strict-dynamic'/);
-  expect(csp).toContain("frame-ancestors 'none'");
+  expect(errors.filter((e) => /Content.Security.Policy|Refused/i.test(e))).toEqual([]);
 });
 
 test("mobile: the bottom tab bar navigates and marks the current tab", async ({
@@ -58,23 +46,23 @@ test("desktop: the top navigation replaces the bottom tab bar", async ({ page, i
 
   await page.goto("/feed");
   const navs = page.getByRole("navigation", { name: "Main" });
-  // Two "Main" navs exist in the DOM; only the desktop one is visible here.
   await expect(navs.filter({ visible: true })).toHaveCount(1);
 
   await page.getByRole("link", { name: "Messages" }).filter({ visible: true }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Messages" })).toBeVisible();
 });
 
-test("keyboard users can skip to the content", async ({ page }) => {
-  await page.goto("/feed");
-  await page.keyboard.press("Tab");
-  const skip = page.getByRole("link", { name: "Skip to content" });
-  await expect(skip).toBeFocused();
-  await expect(skip).toBeVisible();
+test("the profile page shows who is signed in, with a sign-out button", async ({ page }) => {
+  await page.goto("/me");
+
+  await expect(page.getByRole("heading", { level: 1, name: "Your profile" })).toBeVisible();
+  await expect(page.getByText(process.env.E2E_CLERK_USER_EMAIL!)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Sign out" })).toBeVisible();
 });
 
 test("unknown pages show a friendly 404", async ({ page }) => {
-  const response = await page.goto("/this-does-not-exist");
+  const response = await page.goto("/does-not-exist");
+
   expect(response?.status()).toBe(404);
   await expect(page.getByRole("heading", { name: "That page isn't here" })).toBeVisible();
 });

@@ -1,5 +1,6 @@
 "use client";
 
+import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Search } from "lucide-react";
@@ -67,6 +68,10 @@ export function AppHeader() {
         >
           <Search aria-hidden className="size-6" />
         </Link>
+
+        <div className="flex size-11 items-center justify-center">
+          <UserButton />
+        </div>
       </div>
     </header>
   );

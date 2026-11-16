@@ -8,5 +8,5 @@ public abstract class Entity
 {
     public Guid Id { get; protected init; } = Guid.CreateVersion7();
 
-    public DateTimeOffset CreatedAt { get; protected init; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset CreatedAt { get; protected init; } = Timestamps.Now();
 }

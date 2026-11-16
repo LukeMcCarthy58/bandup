@@ -1,13 +1,22 @@
+import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 
-export default function Home() {
+export default async function Home() {
+  // Signed-in users go straight to their feed.
+  const { userId } = await auth();
+  if (userId) redirect("/feed");
+
   return (
     <>
       <header className="border-b bg-card">
-        <div className="mx-auto flex h-14 max-w-screen-md items-center px-4">
+        <div className="mx-auto flex h-14 max-w-screen-md items-center justify-between px-4">
           <span className="font-heading text-2xl font-bold text-primary">BandUp</span>
+          <Button asChild variant="ghost">
+            <Link href="/sign-in">Sign in</Link>
+          </Button>
         </div>
       </header>
 
@@ -19,12 +28,11 @@ export default function Home() {
             nearby.
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            {/* Becomes "Join BandUp" → /sign-up when sign-in arrives (M2). */}
             <Button asChild>
-              <Link href="/feed">Get started</Link>
+              <Link href="/sign-up">Join BandUp</Link>
             </Button>
             <Button asChild variant="outline">
-              <Link href="/adverts">Browse adverts</Link>
+              <Link href="/sign-in">I already have an account</Link>
             </Button>
           </div>
         </section>

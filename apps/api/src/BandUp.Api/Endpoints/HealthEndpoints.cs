@@ -8,14 +8,16 @@ internal static class HealthEndpoints
     {
         // Liveness: the process is up. No dependencies checked.
         app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false })
-            .AllowAnonymous();
+            .AllowAnonymous()
+            .DisableRateLimiting();
 
         // Readiness: the API can serve requests, including reaching the database.
         app.MapHealthChecks("/health", new HealthCheckOptions
         {
             Predicate = check => check.Tags.Contains("ready"),
         })
-            .AllowAnonymous();
+            .AllowAnonymous()
+            .DisableRateLimiting();
 
         return app;
     }

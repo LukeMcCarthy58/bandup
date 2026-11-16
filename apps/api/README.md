@@ -79,3 +79,13 @@ dotnet user-secrets set "Auth:Authority" "https://<your-frontend-api>.clerk.acco
 | `GET /api/v1/instruments` | All instruments, in picker order |
 | `GET /api/v1/genres` | All genres, alphabetical |
 | `GET /api/v1/towns?query=man&limit=10` | Towns starting with the query (2 to 50 characters, max 20 results). Never includes coordinates |
+
+## Profile endpoints (signed in)
+
+| Endpoint | Does |
+| --- | --- |
+| `GET /api/v1/me/profile` | Your profile. `hasProfile` is false until you've set your name, town and at least one instrument |
+| `PUT /api/v1/me/profile` | Creates or replaces your profile. Returns field errors (`400`) written for users. Rate limited (`posting`) |
+| `GET /api/v1/users/{id}` | Someone's public profile: town name only, never coordinates. `404` if they haven't set one up |
+
+Enums are sent as strings (`"Intermediate"`). The OpenAPI document is written to `packages/api-client/openapi.json` on every build; see ADR 0013.

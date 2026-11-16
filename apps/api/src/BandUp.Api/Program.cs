@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using BandUp.Api.Endpoints;
 using BandUp.Api.Security;
 using BandUp.Application;
@@ -13,6 +14,14 @@ if (!builder.Environment.IsDevelopment())
     builder.Logging.ClearProviders();
     builder.Logging.AddJsonConsole();
 }
+
+// JSON contract: enums as readable strings ("Intermediate"), and numbers strictly as
+// numbers (so the OpenAPI document, and the generated TypeScript, say "integer").
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    options.SerializerOptions.NumberHandling = JsonNumberHandling.Strict;
+});
 
 builder.Services.AddOpenApi();
 builder.Services.AddValidation();
@@ -42,6 +51,7 @@ app.MapHealthEndpoints();
 var api = app.MapGroup("/api/v1");
 api.MapReferenceDataEndpoints();
 api.MapMeEndpoints();
+api.MapProfileEndpoints();
 
 app.Run();
 

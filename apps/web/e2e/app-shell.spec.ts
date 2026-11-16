@@ -55,7 +55,8 @@ test("desktop: the top navigation replaces the bottom tab bar", async ({ page, i
 test("the profile page shows who is signed in, with a sign-out button", async ({ page }) => {
   await page.goto("/me");
 
-  await expect(page.getByRole("heading", { level: 1, name: "Your profile" })).toBeVisible();
+  // The heading is "Your profile" until it's set up (or if the API is down), then their name.
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.getByText(process.env.E2E_CLERK_USER_EMAIL!)).toBeVisible();
   await expect(page.getByRole("button", { name: "Sign out" })).toBeVisible();
 });

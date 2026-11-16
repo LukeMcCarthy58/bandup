@@ -22,6 +22,7 @@ The REST API is shared by the web app and, later, the mobile app. The OpenAPI do
 | Method | Path | Notes |
 | --- | --- | --- |
 | GET | `/me` | Current user; created on first call |
+| GET | `/me/profile` | Your profile (empty until set up) |
 | PUT | `/me/profile` | Create or update your profile |
 | DELETE | `/me` | Delete your account (F12) |
 | GET | `/users/{id}` | Public profile |

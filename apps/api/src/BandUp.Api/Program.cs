@@ -39,6 +39,9 @@ app.UseApiAccessControl();
 
 app.MapHealthEndpoints();
 
+var api = app.MapGroup("/api/v1");
+api.MapReferenceDataEndpoints();
+
 app.Run();
 
 /// <summary>Exposed for WebApplicationFactory in integration tests.</summary>

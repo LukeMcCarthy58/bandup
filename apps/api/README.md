@@ -54,4 +54,18 @@ dotnet ef database update --project src/BandUp.Infrastructure --startup-project 
 
 ## Tests and the database
 
-Tests tagged `Category=Database` use the `ConnectionStrings__BandUp` environment variable when it's set. CI provides a Postgres service container. Without it, those tests check that the API reports the database as unavailable rather than crashing.
+Integration tests run against a separate **`bandup_test`** database, so they never touch your dev data. They reuse the server, user and password from your user-secret (or the `ConnectionStrings__BandUp` environment variable in CI), swap the database name, and apply migrations automatically.
+
+One-time setup, in pgAdmin's Query Tool (on its own):
+
+```sql
+CREATE DATABASE bandup_test OWNER bandup;
+```
+
+## Reference data endpoints (public)
+
+| Endpoint | Returns |
+| --- | --- |
+| `GET /api/v1/instruments` | All instruments, in picker order |
+| `GET /api/v1/genres` | All genres, alphabetical |
+| `GET /api/v1/towns?query=man&limit=10` | Towns starting with the query (2 to 50 characters, max 20 results). Never includes coordinates |

@@ -1,4 +1,6 @@
+using BandUp.Application.Reference;
 using BandUp.Infrastructure.Persistence;
+using BandUp.Infrastructure.Reference;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,6 +28,8 @@ public static class DependencyInjection
 
         services.AddHealthChecks()
             .AddDbContextCheck<BandUpDbContext>("database", tags: ["ready"]);
+
+        services.AddScoped<IReferenceDataQueries, ReferenceDataQueries>();
 
         return services;
     }

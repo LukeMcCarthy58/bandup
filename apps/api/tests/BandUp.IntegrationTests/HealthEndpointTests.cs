@@ -16,6 +16,17 @@ public class HealthEndpointTests(BandUpApiFactory factory) : IClassFixture<BandU
     }
 
     [Fact]
+    public async Task Readiness_checks_the_database()
+    {
+        using var client = factory.CreateClient();
+
+        var response = await client.GetAsync("/health");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal("Healthy", await response.Content.ReadAsStringAsync());
+    }
+
+    [Fact]
     public async Task OpenApi_document_is_served_in_development()
     {
         using var client = factory.CreateClient();
@@ -23,21 +34,5 @@ public class HealthEndpointTests(BandUpApiFactory factory) : IClassFixture<BandU
         var response = await client.GetAsync("/openapi/v1.json");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-    }
-
-    [Fact]
-    [Trait("Category", "Database")]
-    public async Task Readiness_reports_database_status()
-    {
-        using var client = factory.CreateClient();
-
-        var response = await client.GetAsync("/health");
-
-        // With a real database configured it must be healthy; without one it must
-        // report unhealthy (503) rather than crash.
-        var expected = BandUpApiFactory.DatabaseConnectionString is null
-            ? HttpStatusCode.ServiceUnavailable
-            : HttpStatusCode.OK;
-        Assert.Equal(expected, response.StatusCode);
     }
 }

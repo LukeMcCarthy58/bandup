@@ -86,6 +86,7 @@ dotnet user-secrets set "Auth:Authority" "https://<your-frontend-api>.clerk.acco
 | --- | --- |
 | `GET /api/v1/me/profile` | Your profile. `hasProfile` is false until you've set your name, town and at least one instrument |
 | `PUT /api/v1/me/profile` | Creates or replaces your profile. Returns field errors (`400`) written for users. Rate limited (`posting`) |
+| `DELETE /api/v1/me` | Permanently deletes your BandUp account and profile. `204`, even if already deleted. Rate limited (`sensitive`). See ADR 0014 |
 | `GET /api/v1/users/{id}` | Someone's public profile: town name only, never coordinates. `404` if they haven't set one up |
 
 Enums are sent as strings (`"Intermediate"`). The OpenAPI document is written to `packages/api-client/openapi.json` on every build; see ADR 0013.

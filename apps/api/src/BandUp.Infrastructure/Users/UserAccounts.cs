@@ -40,5 +40,15 @@ internal sealed class UserAccounts(BandUpDbContext db, TimeProvider clock) : IUs
         }
     }
 
+    public async Task<bool> DeleteAsync(string authSubject, CancellationToken cancellationToken)
+    {
+        // One statement; the database cascades to the user's own rows (UserInstruments, UserGenres).
+        // Later features add their own rules here before this delete (ADR 0014).
+        var deleted = await db.Set<User>()
+            .Where(u => u.AuthSubject == authSubject)
+            .ExecuteDeleteAsync(cancellationToken);
+        return deleted > 0;
+    }
+
     private static CurrentUser ToCurrentUser(User user) => new(user.Id, user.CreatedAt);
 }

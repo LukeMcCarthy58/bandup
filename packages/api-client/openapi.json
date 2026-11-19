@@ -119,6 +119,17 @@
             }
           }
         }
+      },
+      "delete": {
+        "tags": [
+          "Me"
+        ],
+        "summary": "Permanently delete your BandUp account and profile",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
       }
     },
     "/api/v1/me/profile": {

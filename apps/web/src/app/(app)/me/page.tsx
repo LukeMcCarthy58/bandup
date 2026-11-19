@@ -6,6 +6,7 @@ import Link from "next/link";
 import { unstable_rethrow } from "next/navigation";
 import { UserRoundPen } from "lucide-react";
 
+import { DeleteAccount } from "@/components/account/delete-account";
 import { ProfileCard } from "@/components/profiles/profile-card";
 import { EmptyState } from "@/components/states/empty-state";
 import { ErrorState } from "@/components/states/error-state";
@@ -71,16 +72,21 @@ export default async function MePage() {
         </>
       )}
 
-      <section className="flex items-center gap-3 rounded-lg border bg-card p-4">
-        <div className="min-w-0 flex-1">
-          <h2 className="text-base">Account</h2>
-          {email ? <p className="truncate text-sm text-muted-foreground">{email}</p> : null}
+      <section className="space-y-4 rounded-lg border bg-card p-4">
+        <div className="flex items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <h2 className="text-base">Account</h2>
+            {email ? <p className="truncate text-sm text-muted-foreground">{email}</p> : null}
+          </div>
+          <SignOutButton>
+            <Button variant="outline" size="sm">
+              Sign out
+            </Button>
+          </SignOutButton>
         </div>
-        <SignOutButton>
-          <Button variant="outline" size="sm">
-            Sign out
-          </Button>
-        </SignOutButton>
+        <div className="border-t pt-4">
+          <DeleteAccount />
+        </div>
       </section>
     </div>
   );
